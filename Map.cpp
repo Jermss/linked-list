@@ -47,6 +47,7 @@ Map& Map::operator=(const Map& otherMap)
 	
 	m_head = nullptr;
 	m_tail = nullptr;
+
 	for (Pair *p = otherMap.m_head; p != nullptr; p = p->m_next) { // We create new nodes and copy the contents of the other map into the current one.
 		Pair *q = new Pair();
 		q->m_key = p->m_key;
@@ -206,7 +207,7 @@ void Map::dump() const
 
 bool combine(const Map& m1, const Map& m2, Map& result)
 {
-	result = m1; // We will combine the two maps by taking m1 and selectively adding nodes from m2.,
+	result = m1; // We will combine the two maps by taking m1 and selectively adding nodes from m2.
 	
 	KeyType k;
 	ValueType v;
@@ -223,6 +224,8 @@ bool combine(const Map& m1, const Map& m2, Map& result)
 				toReturn = false;
 			}
 		}
+		else
+			result.insert(k, v); // If result does not contain the node, we should add it.
 	}
 
 	return toReturn;
@@ -230,16 +233,14 @@ bool combine(const Map& m1, const Map& m2, Map& result)
 
 void subtract(const Map& m1, const Map& m2, Map& result)
 {
+	result = m1; // We will combine the two maps by taking m1 and selectively removing nodes that are also in m2.
+
 	KeyType k;
 	ValueType v;
-	for (int i = result.size() - 1; i >= 0; i--) { // We need to start by emptying result using the public interface.
-		result.get(i, k, v);
-		result.erase(k);
-	}
 	
-	for (int i = m1.size() - 1; i >= 0; i--) {
-		m1.get(i, k, v);
-		if (!m2.contains(k)) // We only want to add to result the nodes in m1 that aren't in m2.
-			result.insert(k, v);
+	for (int i = result.size() - 1; i >= 0; i--) {
+		result.get(i, k, v);
+		if (m2.contains(k))
+			result.erase(k); // If any node in result (m1) is in m2, we want to remove it from result.
 	}
 }
