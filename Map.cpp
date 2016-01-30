@@ -121,25 +121,19 @@ bool Map::insertOrUpdate(const KeyType& key, const ValueType& value)
 bool Map::erase(const KeyType& key)
 {
 	for (Pair *p = m_tail; p != nullptr; p = p->m_previous) { // Traversing from the end backward will be helpful for the combine and subtract functions.
-		if (p->m_key == key) { // If we find the node to delete, there are multiple scenarios to consider.
-			if (m_head == m_tail) { // If there's only one node in the map, the head and tail pointers become nullptr.
-				m_head = nullptr;
-				m_tail = nullptr;
-			}
-			else if (p->m_previous == nullptr) { // If our node is at the very front, we want to make the next node the new head.
+		if (p->m_key == key) {
+			if (p == m_head)
 				m_head = p->m_next;
-				m_head->m_previous = nullptr;
-			}
-			else if (p->m_next == nullptr) { // If our node is at the very end, we want to make the previous node the new tail.
-				m_tail = p->m_previous;
-				m_tail->m_next = nullptr;
-			}
-			else { // If we get to this case, we are guaranteed that there is a node before and after this one, and we connect the two.
+			else
 				p->m_previous->m_next = p->m_next;
+
+			if (p == m_tail)
+				m_tail = p->m_previous;
+			else
 				p->m_next->m_previous = p->m_previous;
-			}
+
 			delete p; // Now that we've sorted out our pointers, we can now delete the node.
-			
+
 			return true;
 		}
 	}
